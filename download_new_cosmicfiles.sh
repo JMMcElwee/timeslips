@@ -38,10 +38,15 @@ echo -e "\e[34;1m[INFO]\e[0m End run:              $HIGH"
 
 if [[ $DEST == "" ]]
 then
-    echo -e "\e[34;1m[Error]\e[0m First argument should be valid destination!"
+    echo -e "\e[31;1m[Error]\e[0m First argument should be valid destination!"
     return
 fi
 
+if [[ $LOW == "" ]]
+then 
+    echo -e "\e[31;1m[Error]\e[0m Second argument should be the starting run number!!"
+    return
+fi
 
 
 # SETUP IRODS
@@ -67,7 +72,7 @@ fi
 
 
 # START LOOPING OVER FILES TO DOWNLOAD IN IRODS
-echo "\e[34;1m[INFO]\e[0m Starting data download."
+echo -e "\e[34;1m[INFO]\e[0m Starting data download."
 for file in $(ils /KEK-T2K/home/dataquality/data/tript/dq-tript-rdt/); 
 do 	
 
@@ -123,4 +128,4 @@ do
     done
 done
 
-echo "=== Complete! ==="
+echo -e "\e[34;1m[INFO]\e[0m Download complete!"
