@@ -1,55 +1,73 @@
 #!/bin/sh
 
-# Awful help checking
-if [[ "$@" == *" -h "* || "$@" == *" -h" || "$@" == "-h" ]]
-then
-    echo "Usage:"
-    echo "./download_new_cosmicfiles.sh  destination  [startrun]  [endrun]"
-    echo " --> destination : path to save files to"
-    echo " --> startrun    : Lower run limit. Only run numbers above this downloaded."
-    echo " --> endrun      : Upper run limit. Run numbers between startrun and endrun downloaded."
-    return
-    exit
-fi 
 
-# Read Arguments
-totaldownloads=0
-lastdownload=""
-destination=$1
-lower=$2
-higher=$3
-echo "=== Read Arguments ==="
-echo "destination : $destination"
-echo "startrun    : $lower"
-echo "endrun      : $higher"
+# ADD A HELP FUNCTION                                                                           
+help(){
+    echo -e "----- download_new_cosmicfiles.sh -----"
+    echo -e "\e[32;1m[HELP]\e[0m Syntax:  source download_new_cosmicfiles.sh <dir> <start> [end] "
+    echo -e "\e[32;1m[HELP]\e[0m Args:"
+    echo -e "\e[32;1m[HELP]\e[0m <dir>    Directory of time slip work."
+    echo -e "\e[32;1m[HELP]\e[0m <start>  Lower run limit. Only run numbers above this downloaded."
+    echo -e "\e[32;1m[HELP]\e[0m [end]    Upper run limit. Run numbers between start and end downloaded."
+}
 
-if [[ "$destination" == "" ]]
+# Search for the correct flag, exit if not                                                      
+while getopts ":h" option; do
+    case $option in
+	h)
+            help
+            OPTIND=0 # Probably bad practice                                                       
+            return;;
+	\?)
+            echo -e "\e[31;1m[ERROR]\e[0m Invalid flag parsed."
+            OPTIND=0 # Probably bad practice                                                       
+            return;;
+    esac
+done
+
+
+
+# READ ARGUMENTS AND CHECK THEY EXIST
+LASTDOWN=""
+DEST=$1
+LOW=$2
+HIGH=$3
+echo -e "\e[34;1m[INFO]\e[0m Download destination: $DEST"
+echo -e "\e[34;1m[INFO]\e[0m Start run:            $LOW"
+echo -e "\e[34;1m[INFO]\e[0m End run:              $HIGH"
+
+if [[ $DEST == "" ]]
 then
-    echo "First argument should be valid destination!"
+    echo -e "\e[34;1m[Error]\e[0m First argument should be valid destination!"
     return
-    exit
 fi
 
-echo "=== Setting up ==="
-# Changed the iRods path because the cluster is on Fire
-#source /usr/local/t2k-software/setup-irods.sh
-source /data/jmcelwee/T2K/timeSlips/setup-irods.sh
+
+
+# SETUP IRODS
+source $PWD/setup-irods.sh
 iinit
 
-if [[ ! -e "$destination" ]]
+
+
+# MAKING DESTINATION DIRECTORIES 
+if [[ ! -e "$DEST" ]]
 then
-    echo "Making $destination folder."
-    mkdir $destination
+    echo -e "\e[34;1m[INFO]\e[0m Making directory" $DEST
+    mkdir $DEST
 fi
 
-if [[ ! -e "$destination/dq-files/" ]]
+if [[ ! -e "$DEST/dq-files/" ]]
 then
-    echo "Making $destination/dq-files/ folder."
-    mkdir $destination/dq-files/
+    echo -e "\e[34;1m[INFO]\e[0m Making directory" $DEST "/dq-files/"
+    mkdir $DEST/dq-files/
 fi
 
-echo "=== Download Search ==="
-# Start loop over all folders
+
+
+
+# START LOOPING OVER FILES TO DOWNLOAD IN IRODS
+echo "\e[34;1m[INFO]\e[0m Starting data download."
 for file in $(ils /KEK-T2K/home/dataquality/data/tript/dq-tript-rdt/); 
 do 	
 
@@ -72,11 +90,11 @@ do
 	baserun=$(basename $rmmfile)
 
 	# Check limits
-	if [[ "$lower" != ""  && "$lower" -gt "$baserun" ]]
+	if [[ "$LOW" != ""  && "$LOW" -gt "$baserun" ]]
         then
             continue
         fi
-        if [[ "$higher" != ""  && "$higher" -lt "$baserun" ]]
+        if [[ "$HIGH" != ""  && "$HIGH" -lt "$baserun" ]]
         then
             continue
         fi
@@ -94,11 +112,11 @@ do
 	    dqfile="$rmmfile/$rootfile"
 
 	    # Check if we already have this dqfile
-	    if [ ! -e $destination/dq-files/$rootfile ]
+	    if [ ! -e $DEST/dq-files/$rootfile ]
 	    then
-		echo "Downloading file $rmmfile/$rootfile"
-		iget $dqfile $destination/dq-files/
-		lastdownload=$baserun
+		echo -e "\e[34;1m[INFO]\e[0m Downloading file $rmmfile/$rootfile"
+		iget $dqfile $DEST/dq-files/
+		LASTDOWN=$baserun
 	    fi
 	    
 	done
