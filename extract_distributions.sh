@@ -1,58 +1,94 @@
 #!/bin/sh
 
-# Awful help checking
-if [[ "$@" == *" -h "* || "$@" == *" -h" || "$@" == "-h" ]]
+
+# ADD A HELP FUNCTION
+help(){
+    echo -e "----- extract_distributions.sh -----"
+    echo -e "\e[32;1m[HELP]\e[0m Syntax:  source extract_distributions.sh <dir>  "
+    echo -e "\e[32;1m[HELP]\e[0m Args:"
+    echo -e "\e[32;1m[HELP]\e[0m <dir>    Directory of time slip work (same as before)."
+}
+
+# Search for the correct flag, exit if not
+while getopts ":h" option; do
+   case $option in
+      h)
+         help
+	 OPTIND=0 # Probably bad practice
+	 return;;
+     \?) 
+         echo -e "\e[31;1m[ERROR]\e[0m Invalid flag parsed."
+	 OPTIND=0 # Probably bad practice
+         return;;
+   esac
+done
+
+
+# READ ARGUMENTS AND SET USEFUL VARIABLES
+SCRIPTLOC=$PWD/scripts
+DEST=$1
+DQDIR="dq-files"
+OUTFILE=${DEST//\//}
+
+if [[ ! -e $DEST ]]
 then
-    echo "Usage:"
-    echo "./extract_distributions.sh  location  "
-    echo " --> location : path files are saved in"
+    echo -e "\e[31;1m[ERROR]\e[0m Please supply destination directory."
     return
-    exit
-fi 
+fi
 
-# Read Arguments
-destination=$1
-dqfiles="dq-files/"
-outname=${destination//\//}
-outname=${outname//\./}
+echo -e "\e[34;1m[INFO]\e[0m File Source: $PWD/$DEST/$DQDIR"
+echo -e "\e[34;1m[INFO]\e[0m Out Name:" $OUTFILE"_timeslipscan.root"
 
-echo "=== Read Arguments ==="
-echo "File Source : $dqfiles"
-echo "Out Name : $outname"
 
-echo "=== Setting up ===";
-#export CMTPATH=/usr/local/t2k-software/ND280v11r31
-#export CMTROOT=/usr/local/t2k-software/CMT/v1r20p20081118
-#source /usr/local/t2k-software/ND280v11r31/nd280/v*r*/cmt/setup.sh "";
-#export CMTPATH=/home/jenkins/software/
-#export CMTROOT==/home/jenkins/software/CMT/v1r20p20081118
-#source /data/perry/t2k-software/ND280v11r31/nd280/v*r*/cmt/setup.sh "";
-#source /data/osullivan/timeslips/setupcalibration.sh "";
 
-#source /data/jmcelwee/T2K/timeSlips/setup.sh;
+# CHECK ND280SYS SET CORRECTLY
+if [[ ! -z "$ND280SYS" ]] 
+then 
+    echo -e "\e[34;1m[INFO]\e[0m \$ND280SYS set to" $ND280SYS
+    # Find the extraction script. Saves on hardcoding the position
+    EXTRACTOR=$(find $ND280SYS/soffTasks -name "tript_timeslip_analysis.exe")
+else
+    echo -e "\e[31;1m[ERROR]\e[0m Please set \$ND280SYS to point at your ND280 build." 
+    return;
+fi
 
-#alias tript="/home/stowell/nd280Rep/soffTasks/v1r39/Linux-x86_64/tript_timeslip_analysis.exe";
-echo "=== Running Extractor ==="
-cd $destination
-#/home/stowell/nd280Rep/soffTasks/v1r39/Linux-x86_64/tript_timeslip_analysis.exe ./dq-tript-rdt_????????_????.root $dqfiles/dq-tript-rdt_????????_????.root -o ${outname}_timeslipscan.root
-/sft/t2k-software/ND280v12r25/soffTasks/v1r53/Linux-x86_64/tript_timeslip_analysis.exe ./dq-tript-rdt_????????_????.root $dqfiles/dq-tript-rdt_????????_????.root -o ${outname}_timeslipscan.root
-echo "=== Extraction Complete, Copying scripts ==="
-cp -v ../../scripts/*.py ./
-cp -v ../../scripts/*.sh ./
-mkdir ./validation/
-mkdir ./tables/
-echo "=== Running second smoothing stage ==="
-python PlotSmoother.py ${outname}_timeslipscan.root_cosmics_tript.root
-echo "=== Smoothing complete. ==="
-echo " 1. To process slips first run the MCM to CTM search"
-echo " $ source search_mcm_slips.sh "
-echo " 2. Then check validations "
-echo " $ source search_mcm_slips.sh  -validate"
-echo " 3. Then search for normal slips"
-echo " $ source search_rmm_slips.sh "
-echo " 4. Then validate"
-echo " $ source search_rmm_slips.sh  -validate"
-echo " 5. When slips are final and validations look good, run the upload script."
-echo " $ source upload_all_slips.sh"
-echo " 6. Finally make the RMM slip frequency plots"
-echo " $ source plot_slip_frequency.sh"
+
+
+# RUNNING THE EXTRACTOR SCRIPT
+cd $DEST
+echo -e "\e[34;1m[INFO]\e[0m Moving to directory:" $DEST
+
+echo -e "\e[34;1m[INFO]\e[0m Running the extractor."
+$EXTRACTOR ./dq-tript-rdt_????????_????.root $DQDIR/dq-tript-rdt_????????_????.root -o ${OUTFILE//\./}_timeslipscan.root
+
+
+
+# ADD SYM LINKS TO THE ANALYSIS SCRIPTS
+echo -e "\e[34;1m[INFO]\e[0m Extraction complete. Linking analysis scripts."
+
+# See if scripts exist
+SCRIPTS=$PWD/search_mcm_slips.sh
+if [[ -f "$SCRIPTS" ]]
+then 
+    echo -e "\e[34;1m[INFO]\e[0m Analysis scripts already exist."
+else
+    ln -s $SCRIPTLOC/* .
+    echo -e "\e[34;1m[INFO]\e[0m Creating links to scripts."
+fi
+
+echo -e "\e[34;1m[INFO]\e[0m Making analysis directories."
+VAL=validation
+TAB=tables
+if [[ ! -e $VAL ]]; then
+    mkdir $VAL
+fi
+if [[ ! -e $TAB ]]; then
+    mkdir $TAB
+fi
+
+
+# SECOND SMOOTHING STAGE
+echo -e "\e[34;1m[INFO]\e[0m Running second smoothing stage (PlotSmoother.py).. making it smooooothier."
+python PlotSmoother.py ${OUTFILE}_timeslipscan.root_cosmics_tript.root
+
+echo -e "\e[34;1m[INFO]\e[0m Smoothing complete. Time to find some slips!"
