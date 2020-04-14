@@ -1,11 +1,10 @@
-echo "=== Converting Timeslips to ChannelID Format ==="
+echo -e "\e[34;1m[INFO]\e[0m Converting time slips to ChannelID format."
 python TimeSlipConverter.py
-echo "=== Producing upload tables ==="
+echo -e "\e[34;1m[INFO]\e[0m Producing upload tables."
 mkdir tables
 python ProduceTables.py final_timeslips_converted.txt
-echo "=== Creating Upload Script ==="
+echo -e "\e[34;1m[INFO]\e[0m Creating upload script."
 source gen_upload_script.sh
-echo "=== Complete ==="
-echo "To upload tables run : "
-echo "$ cd tables && source UploadScript.sh"
-
+echo -e "\e[34;1m[INFO]\e[0m Complete!"
+echo -e "\e[34;1m[INFO]\e[0m To upload tables run:"
+echo -e "\e[34;1m[INFO]\e[0m $ cd tables && source UploadScript.sh"
