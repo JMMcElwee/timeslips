@@ -19,7 +19,7 @@ def arr(vals):
 
 #_______________________________________________
 def MakeWindowMeanPlot(graph, timewindow=120, scale=1.0, vetos = []):
-    print "Making window mean :", graph.GetTitle()
+    print "\033[1;34m[INFO]\033[0m Making window mean :", graph.GetTitle()
 
     # Get Graph Points
     nvals, xvals, yvals = GetVals(graph)
@@ -526,7 +526,7 @@ def SearchForSlips(graph, threshold, window, timeslips, sliptype):
             sliptime  = (curtime[xExceed] + curtime[xReturned]) / 2.0 
             slipfound = AddTimeSlip(timeslips, sliptime, slipoffset, sliptype, maxtime[i] - mintime[i])
             if slipfound: 
-                print " --> Adding timeslip : ", sliptime, avgPre, avgPost, slipoffset
+                print "\033[1;34m[INFO]\033[0m  --> Adding timeslip : ", sliptime, avgPre, avgPost, slipoffset
             
     return timeslips
 
@@ -849,14 +849,5 @@ def GetSlipGraph(inslips, intype):
     gr.GetXaxis().SetTimeDisplay(1)
 
     return gr
-
-
-
-
-
-
-
-
-
 
 
