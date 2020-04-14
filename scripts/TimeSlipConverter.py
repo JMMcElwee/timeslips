@@ -8,7 +8,7 @@ if len(sys.argv) > 1:
 timeslips = GetSlipsFromFile(slipfile)
 
 if slipfile == "":
-    slipfile = "finaltimeslips.txt"
+    slipfile = "final_timeslips.txt"
 
 outputfile = open(slipfile.strip(".txt") + "_converted.txt","w")
 
