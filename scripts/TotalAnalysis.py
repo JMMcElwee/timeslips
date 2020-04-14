@@ -133,7 +133,7 @@ if __name__=="__main__":
 
 
             # Run Slip Search
-            print "Scanning for slips in", [search_plot.GetTitle()], "Window =", wind, "Type =", [sliptype], "Threshold =", [4.0]
+            print "\033[1;34m[INFO]\033[0m Scanning for slips in", [search_plot.GetTitle()], "Window =", wind, "Type =", [sliptype], "Threshold =", [4.0]
             timeslips = SearchForSlips(cur_plot, threshold, wind, timeslips, sliptype)
 
             # Skim out slips that are dodgy
@@ -142,7 +142,7 @@ if __name__=="__main__":
 
             # Get start nslips
             if nslipsbefore < nslipsafter:
-                print "Repeating slip search at this window"
+                print "\033[1;34m[INFO]\033[0m Repeating slip search at this window"
             else:
                 windcount += 1
 
@@ -172,7 +172,7 @@ if __name__=="__main__":
                 cur_plot = StepPlot(cur_plot, 2.0)
 
                 # Run Slip Search
-                print "Scanning for slips in", [search_plot.GetTitle()], "Window =", wind, "Type =", [sliptype], "Threshold =", [2.0]
+                print "\033[1;34m[INFO]\033[0m Scanning for slips in", [search_plot.GetTitle()], "Window =", wind, "Type =", [sliptype], "Threshold =", [2.0]
                 timeslips = SearchForSlips(cur_plot, threshold, wind, timeslips, sliptype)
 
                 # Skim out slips that are dodgy
@@ -181,7 +181,7 @@ if __name__=="__main__":
 
                 # Get start nslips
                 if nslipsbefore < nslipsafter:
-                    print "Repeating slip search at this window"
+                    print "\033[1;34m[INFO]\033[0m Repeating slip search at this window"
                 else:
                     windcount += 1
 
@@ -195,13 +195,13 @@ if __name__=="__main__":
         nvals, xvals, yvals = GetVals(corgr)
         rms_5ns = GetArrRMS(yvals,nvals)
 
-        print "RMS 10 vs 5 : ", rms_10ns, rms_5ns
+        print "\033[1;34m[INFO]\033[0m RMS 10 vs 5 : ", rms_10ns, rms_5ns
         if rms_10ns > rms_5ns: SaveSlips(timeslips_5ns,timeslipfile,sliptype)
         else: SaveSlips(timeslips_10ns,timeslipfile,sliptype)
 
     #_______________________________________________
     else:
-        print "Validating ", sliptype
+        print "\033[1;34m[INFO]\033[0m Validating ", sliptype
         plot_corrected = ApplyCorrections(search_plot.Clone(),timeslips)
         plot_corrected.SetLineColor(kRed)
         plot_corrected.SetMarkerColor(kRed)
