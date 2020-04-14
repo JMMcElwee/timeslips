@@ -3,7 +3,7 @@
 
 # ADD A HELP FUNCTION
 help(){
-    echo -e "----- extract_distributions.sh -----"
+    echo -e "\e[32;1m[HELP]\e[37m ----- extract_distributions.sh -----\e[0m"
     echo -e "\e[32;1m[HELP]\e[0m Syntax:  source extract_distributions.sh <dir>  "
     echo -e "\e[32;1m[HELP]\e[0m Args:"
     echo -e "\e[32;1m[HELP]\e[0m <dir>    Directory of time slip work (same as before)."
@@ -14,11 +14,11 @@ while getopts ":h" option; do
    case $option in
       h)
          help
-	 OPTIND=0 # Probably bad practice
+	 OPTIND=1 # Probably bad practice
 	 return;;
      \?) 
          echo -e "\e[31;1m[ERROR]\e[0m Invalid flag parsed."
-	 OPTIND=0 # Probably bad practice
+	 OPTIND=1 # Probably bad practice
          return;;
    esac
 done

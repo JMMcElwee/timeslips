@@ -3,7 +3,7 @@
 
 # ADD A HELP FUNCTION                                                                           
 help(){
-    echo -e "----- download_new_cosmicfiles.sh -----"
+    echo -e "\e[32;1m[HELP]\e[37m ----- download_new_cosmicfiles.sh ----- \033[0m"
     echo -e "\e[32;1m[HELP]\e[0m Syntax:  source download_new_cosmicfiles.sh <dir> <start> [end] "
     echo -e "\e[32;1m[HELP]\e[0m Args:"
     echo -e "\e[32;1m[HELP]\e[0m <dir>    Directory of time slip work."
@@ -38,13 +38,13 @@ echo -e "\e[34;1m[INFO]\e[0m End run:              $HIGH"
 
 if [[ $DEST == "" ]]
 then
-    echo -e "\e[31;1m[Error]\e[0m First argument should be valid destination!"
+    echo -e "\e[31;1m[ERROR]\e[0m First argument should be valid destination!"
     return
 fi
 
 if [[ $LOW == "" ]]
 then 
-    echo -e "\e[31;1m[Error]\e[0m Second argument should be the starting run number!!"
+    echo -e "\e[31;1m[ERROR]\e[0m Second argument should be the starting run number!!"
     return
 fi
 
